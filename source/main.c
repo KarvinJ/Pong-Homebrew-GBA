@@ -33,70 +33,6 @@ void setMenuCursor(int selection)
     printChar(selector[1], MENU_TEXT_X - CHAR_PIX_SIZE, MENU_ITEM_1 + (selection)*LINE_HEIGHT);
 }
 
-/* Menu Logic */
-void menuMode(bool *menuVisible, struct MenuScreen *mainMenu, struct MenuScreen *settingsMenu, int *currentMenu, int *gameMode)
-{
-    /* Render current menu if not already rendered */
-    if (!*menuVisible)
-    {
-        if (*currentMenu == MAIN_MENU)
-        {
-            displayText("PONG BREW ", MENU_TEXT_X, MENU_TEXT_Y);
-            displayText("PLAY GAME ", MENU_TEXT_X, MENU_ITEM_1);
-            displayText(" SETTINGS ", MENU_TEXT_X - 4, MENU_ITEM_2);
-            setMenuCursor(mainMenu->selection);
-        }
-        else if (*currentMenu == SETTINGS_MENU)
-        {
-            displayText("1ST TO 10 ", MENU_TEXT_X, MENU_TEXT_Y);
-            displayText("WINS GAME!", MENU_TEXT_X, MENU_TEXT_Y + LINE_HEIGHT);
-            displayText("   BACK   ", MENU_TEXT_X, MENU_ITEM_2);
-            setMenuCursor(settingsMenu->selection);
-        }
-
-        *menuVisible = true;
-    }
-
-    /* Respond to Input / Menu Selections */
-    int keys_pressed;
-    keys_pressed = keysDown();
-    bool selectionMade = (keys_pressed & KEY_START) || (keys_pressed & KEY_A);
-    bool changedSelection = (keys_pressed & KEY_DOWN) || (keys_pressed & KEY_UP);
-
-    if (*currentMenu == MAIN_MENU)
-    {
-        if (selectionMade)
-        {
-            if (mainMenu->selection == 0)
-            {
-                clearMenu();
-                *gameMode = MATCH_MODE;
-            }
-            else if (mainMenu->selection == 1)
-            {
-                clearMenu();
-                *currentMenu = SETTINGS_MENU;
-                *menuVisible = false;
-            }
-        }
-        else if (changedSelection)
-        {
-            mainMenu->selection = !(mainMenu->selection);
-            setMenuCursor(mainMenu->selection);
-        }
-    }
-    else if (*currentMenu == SETTINGS_MENU)
-    {
-        if (selectionMade)
-        {
-            clearMenu();
-            *currentMenu = MAIN_MENU;
-            *menuVisible = false;
-        }
-    }
-    return;
-}
-
 /* Set Starting Values for New Game */
 void setupMatch(struct rect *humanPlayer, struct rect *computerPlayer,
                 struct rect *ball, int *humanScore, int *computerScore, int *pauseLength,
@@ -374,15 +310,7 @@ int main(void)
     bool paused;
     setupMatch(&humanPlayer, &computerPlayer, &ball, &humanScore, &computerScore, &pauseLength, &pauseCounter, &paused);
 
-    /* Menu Variables */
-    struct MenuScreen mainMenu, settingsMenu;
-    mainMenu.selection = 0;
-    settingsMenu.selection = 1;
-    bool menuVisible = false;
-    int currentMenu = MAIN_MENU;
-
-    /* Start in Menu */
-    int gameMode = MENU_MODE;
+    int gameMode = MATCH_MODE;
 
     /* Set screen to mode 3 */
     SetMode(MODE_3 | BG2_ON);
@@ -393,18 +321,7 @@ int main(void)
         VBlankIntrWait();
         scanKeys();
 
-        /* Menu Mode */
-        if (gameMode == MENU_MODE)
-        {
-            menuMode(&menuVisible,
-                     &mainMenu,
-                     &settingsMenu,
-                     &currentMenu,
-                     &gameMode);
-
-            /* Playing a Game */
-        }
-        else if (gameMode == MATCH_MODE)
+        if (gameMode == MATCH_MODE)
         {
             matchMode(&humanPlayer,
                       &computerPlayer,
@@ -424,14 +341,13 @@ int main(void)
             {
                 pauseCounter = 0;
                 clearScreen();
-                menuVisible = false;
                 gameMode = MENU_MODE;
-                currentMenu = MAIN_MENU;
             }
             else
             {
                 pauseCounter++;
             }
         }
+
     }
 }
