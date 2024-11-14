@@ -38,7 +38,7 @@ bool hasCollision(
 }
 
 /* Paddle Bounce Logic - Tweak as needed depending on paddle size */
-void bounceOffPaddle(struct rect *playerPaddle, struct rect *ball)
+void bounceOffPaddle(rectangle *playerPaddle, rectangle *ball)
 {
     int y_diff = (ball->y + (BALL_SIZE / 2)) - (playerPaddle->y + (PADDLE_HEIGHT / 2));
 
@@ -52,31 +52,31 @@ void bounceOffPaddle(struct rect *playerPaddle, struct rect *ball)
 }
 
 /* Scoring Points */
-void playerScores(bool isHuman, struct rect *ball, int *humanScore, int *cpuScore, int *pauseLength)
+void playerScores(bool isHuman, rectangle *ball, int *humanScore, int *cpuScore, int *pauseLength)
 {
     /* Increment Score */
     int *playerScore;
+
     if (isHuman)
         playerScore = humanScore;
     else
         playerScore = cpuScore;
+
     *playerScore = *playerScore + 1;
     paused = true;
 
     /* If Winning Score, Show Winner and Reset */
     if (*playerScore >= WINNING_SCORE)
     {
-        clearRegion(SCREEN_WIDTH / 2, MENU_TEXT_Y,
-                    SCREEN_WIDTH / 2 + 2, MENU_TEXT_Y + 30);
+        clearRegion(SCREEN_WIDTH / 2, MENU_TEXT_Y, SCREEN_WIDTH / 2 + 2, MENU_TEXT_Y + 30);
+
         if (isHuman)
         {
-            displayText(" YOU WIN! ",
-                        END_TEXT_X, END_TEXT_Y);
+            displayText(" YOU WIN! ", END_TEXT_X, END_TEXT_Y);
         }
         else
         {
-            displayText(" CPU WINS ",
-                        END_TEXT_X, END_TEXT_Y);
+            displayText(" CPU WINS ", END_TEXT_X, END_TEXT_Y);
         }
     }
     else
@@ -87,9 +87,7 @@ void playerScores(bool isHuman, struct rect *ball, int *humanScore, int *cpuScor
 }
 
 /* Game Logic */
-void matchMode(struct rect *player, struct rect *cpuPlayer,
-               struct rect *ball, int *playerScore, int *cpuScore,
-               int *pauseLength, int *pauseCounter)
+void matchMode(rectangle *player, rectangle *cpuPlayer, rectangle *ball, int *playerScore, int *cpuScore, int *pauseLength, int *pauseCounter)
 {
     /* If players are rallying */
     if (!paused)
@@ -191,20 +189,19 @@ void matchMode(struct rect *player, struct rect *cpuPlayer,
     }
 
     /* Clear Previous Ball, Player Graphics */
-    clearPrevious(ball);
-    clearPrevious(player);
-    clearPrevious(cpuPlayer);
+    clearPreviousPosition(ball);
+    clearPreviousPosition(player);
+    clearPreviousPosition(cpuPlayer);
 
     drawCenterLine();
 
     printHumanScore(score[*playerScore]);
     printComputerScore(score[*cpuScore]);
-    printPlayerSymbols();
 
     /* Draw Ball, Players at current positions */
-    drawRect(ball, CLR_LIME);
-    drawRect(player, CLR_BLUE);
-    drawRect(cpuPlayer, CLR_BLUE);
+    drawRectangle(ball, CLR_LIME);
+    drawRectangle(player, CLR_BLUE);
+    drawRectangle(cpuPlayer, CLR_BLUE);
 
     /* Update previous positions for clearing pixels */
     ball->prevX = ball->x;
@@ -249,7 +246,7 @@ int main(void)
     SetMode(MODE_3 | BG2_ON);
 
     /* Match Variables */
-    struct rect humanPlayer, computerPlayer, ball;
+    rectangle humanPlayer, computerPlayer, ball;
     int humanScore, computerScore;
     int pauseLength, pauseCounter;
 

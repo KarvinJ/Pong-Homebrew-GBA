@@ -31,7 +31,7 @@
 typedef u16 M3LINE[SCREEN_WIDTH];
 #define m3_mem ((M3LINE *)MEM_VRAM)
 
-struct rect
+typedef struct
 {
     int x;
     int y;
@@ -41,15 +41,10 @@ struct rect
     int height;
     int velocityX;
     int velocityY;
-};
-
-struct MenuScreen
-{
-    int selection;
-};
+} rectangle;
 
 /* Drawing Graphics for Players and Ball */
-void drawRect(struct rect *cRect, int color)
+void drawRectangle(rectangle *cRect, int color)
 {
     for (int i = cRect->x; i < cRect->x + cRect->width; i++)
     {
@@ -60,7 +55,7 @@ void drawRect(struct rect *cRect, int color)
     }
 }
 
-void clearPrevious(struct rect *cRect)
+void clearPreviousPosition(rectangle *cRect)
 {
     for (int i = cRect->prevX; i < cRect->prevX + cRect->width; i++)
     {
@@ -109,6 +104,7 @@ void printScore(bool scoreArray[64], int x)
             int color = CLR_BLACK;
             if (scoreArray[i * 8 + j])
                 color = CLR_WHITE;
+
             m3_mem[SCORE_Y + 2 * i][x + 2 * j] = color;
             m3_mem[SCORE_Y + 2 * i][x + 2 * j + 1] = color;
             m3_mem[SCORE_Y + 2 * i + 1][x + 2 * j] = color;
@@ -137,6 +133,7 @@ void printChar(bool characterArray[64], int x, int y)
             int color = CLR_BLACK;
             if (characterArray[i * 8 + j])
                 color = CLR_WHITE;
+
             m3_mem[y + i][x + j] = color;
         }
     }
@@ -174,40 +171,6 @@ void displayText(char textBuffer[], int x, int y)
         else
         {
             printChar(alphabet[textBuffer[i] - 0x41], x + i * 8, y);
-        }
-    }
-}
-
-/* Show which side is which player */
-void printPlayerSymbols()
-{
-    /* Print "P1" on Left Side */
-    printChar(alphabet[15], (SCREEN_WIDTH / 4) - CHAR_PIX_SIZE, PLAYER_SYM_Y); // P
-    printChar(score[1], (SCREEN_WIDTH / 4), PLAYER_SYM_Y);                     // 1
-
-    /* Print "CPU" on Left Side */
-    printChar(alphabet[2], (3 * SCREEN_WIDTH / 4) - CHAR_PIX_SIZE - 4, PLAYER_SYM_Y);  // C
-    printChar(alphabet[15], (3 * SCREEN_WIDTH / 4) - 4, PLAYER_SYM_Y);                 // P
-    printChar(alphabet[20], (3 * SCREEN_WIDTH / 4) + CHAR_PIX_SIZE - 4, PLAYER_SYM_Y); // U
-}
-
-/* Clear just the Menu, faster than clear screen (smaller area) */
-void clearMenu()
-{
-    clearRegion(
-        MENU_TEXT_X - CHAR_PIX_SIZE, MENU_TEXT_Y,
-        MENU_TEXT_X + (NUM_CHARS_LINE + 2) * CHAR_PIX_SIZE,
-        MENU_TEXT_Y + 4 * LINE_HEIGHT);
-}
-
-/* Clear entire screen (slow) */
-void clearScreen()
-{
-    for (int i = 0; i < 240; i++)
-    {
-        for (int j = 0; j < 160; j++)
-        {
-            m3_mem[j][i] = CLR_BLACK;
         }
     }
 }
