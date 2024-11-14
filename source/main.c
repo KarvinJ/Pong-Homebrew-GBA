@@ -200,8 +200,8 @@ void matchMode(rectangle *player, rectangle *cpuPlayer, rectangle *ball, int *pl
 
     /* Draw Ball, Players at current positions */
     drawRectangle(ball, CLR_LIME);
-    drawRectangle(player, CLR_BLUE);
-    drawRectangle(cpuPlayer, CLR_BLUE);
+    drawRectangle(player, CLR_WHITE);
+    drawRectangle(cpuPlayer, CLR_WHITE);
 
     /* Update previous positions for clearing pixels */
     ball->prevX = ball->x;
