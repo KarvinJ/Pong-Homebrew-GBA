@@ -1,6 +1,7 @@
 #include "characters.h"
 
 #define MEM_VRAM 0x06000000
+
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 160
 
@@ -13,20 +14,20 @@
 #define CLR_CYAN 0x7FE0
 #define CLR_WHITE 0x7FFF
 
-#define CHAR_PIX_SIZE 8
-#define LINE_HEIGHT 12
-#define NUM_CHARS_LINE 10
+const int CHAR_PIX_SIZE = 8;
+const int LINE_HEIGHT = 12;
+const int NUM_CHARS_LINE = 10;
 
-#define MENU_TEXT_X ((SCREEN_WIDTH / 2) - (CHAR_PIX_SIZE * NUM_CHARS_LINE / 2))
-#define MENU_TEXT_Y (SCREEN_HEIGHT / 2) - 16
-#define MENU_ITEM_1 MENU_TEXT_Y + (2 * LINE_HEIGHT)
-#define MENU_ITEM_2 MENU_ITEM_1 + LINE_HEIGHT
+const int MENU_TEXT_X = ((SCREEN_WIDTH / 2) - (CHAR_PIX_SIZE * NUM_CHARS_LINE / 2));
+const int MENU_TEXT_Y = (SCREEN_HEIGHT / 2) - 16;
+const int MENU_ITEM_1 = MENU_TEXT_Y + (2 * LINE_HEIGHT);
+const int MENU_ITEM_2 = MENU_ITEM_1 + LINE_HEIGHT;
 
-#define END_TEXT_X ((SCREEN_WIDTH / 2) - (CHAR_PIX_SIZE * NUM_CHARS_LINE / 2))
-#define END_TEXT_Y (SCREEN_HEIGHT / 2) - (CHAR_PIX_SIZE / 2)
+const int END_TEXT_X = ((SCREEN_WIDTH / 2) - (CHAR_PIX_SIZE * NUM_CHARS_LINE / 2));
+const int END_TEXT_Y = (SCREEN_HEIGHT / 2) - (CHAR_PIX_SIZE / 2);
 
-#define SCORE_Y 10
-#define PLAYER_SYM_Y (SCREEN_HEIGHT - LINE_HEIGHT - SCORE_Y)
+const int SCORE_Y = 10;
+const int PLAYER_SYM_Y = (SCREEN_HEIGHT - LINE_HEIGHT - SCORE_Y);
 
 typedef u16 M3LINE[SCREEN_WIDTH];
 #define m3_mem ((M3LINE *)MEM_VRAM)
