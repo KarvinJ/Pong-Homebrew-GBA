@@ -44,22 +44,22 @@ typedef struct
 } rectangle;
 
 /* Drawing Graphics for Players and Ball */
-void drawRectangle(rectangle *cRect, int color)
+void drawRectangle(rectangle *rectangle, int color)
 {
-    for (int i = cRect->x; i < cRect->x + cRect->width; i++)
+    for (int i = rectangle->x; i < rectangle->x + rectangle->width; i++)
     {
-        for (int j = cRect->y; j < cRect->y + cRect->height; j++)
+        for (int j = rectangle->y; j < rectangle->y + rectangle->height; j++)
         {
             m3_mem[j][i] = color;
         }
     }
 }
 
-void clearPreviousPosition(rectangle *cRect)
+void clearPreviousPosition(rectangle *rectangle)
 {
-    for (int i = cRect->prevX; i < cRect->prevX + cRect->width; i++)
+    for (int i = rectangle->prevX; i < rectangle->prevX + rectangle->width; i++)
     {
-        for (int j = cRect->prevY; j < cRect->prevY + cRect->height; j++)
+        for (int j = rectangle->prevY; j < rectangle->prevY + rectangle->height; j++)
         {
             m3_mem[j][i] = CLR_BLACK;
         }
@@ -113,12 +113,12 @@ void printScore(bool scoreArray[64], int x)
     }
 }
 
-void printHumanScore(bool scoreArray[64])
+void printPlayerScore(bool scoreArray[64])
 {
     printScore(scoreArray, SCREEN_WIDTH / 4 - 8);
 }
 
-void printComputerScore(bool scoreArray[64])
+void printCpuScore(bool scoreArray[64])
 {
     printScore(scoreArray, 3 * SCREEN_WIDTH / 4 - 8);
 }

@@ -4,19 +4,20 @@
 #include <gba_input.h>
 #include "graphics.h"
 
-#define PADDLE_HEIGHT 24
-#define PADDLE_WIDTH 8
-#define BALL_SIZE 8
+const int PADDLE_HEIGHT = 24;
+const int PADDLE_WIDTH = 8;
+const int BALL_SIZE = 8;
 
-#define NEW_GAME_PAUSE 120 // 2   Seconds
-#define ROUND_PAUSE 90     // 1.5 Seconds
-#define HALF_PAUSE (ROUND_PAUSE / 2)
+const int NEW_GAME_PAUSE = 120; // 2   Seconds
+const int ROUND_PAUSE = 90;     // 1.5 Seconds
+const int HALF_PAUSE = (ROUND_PAUSE / 2);
 
-#define BALL_START_X (SCREEN_WIDTH / 2) - (BALL_SIZE / 2) + 1
-#define PLAYER_START_Y ((SCREEN_HEIGHT / 2) - (PADDLE_HEIGHT / 2))
-#define WINNING_SCORE 10
+const int BALL_START_X = (SCREEN_WIDTH / 2) - (BALL_SIZE / 2) + 1; 
+const int PLAYER_START_Y = ((SCREEN_HEIGHT / 2) - (PADDLE_HEIGHT / 2));
 
-bool paused = true;
+int pauseLength = NEW_GAME_PAUSE;
+
+bool isGamePaused = true;
 
 /* Show menu cursor on current selection */
 void setMenuCursor(int selection)
@@ -52,7 +53,7 @@ void bounceOffPaddle(rectangle *playerPaddle, rectangle *ball)
 }
 
 /* Scoring Points */
-void playerScores(bool isHuman, rectangle *ball, int *humanScore, int *cpuScore, int *pauseLength)
+void playerScores(bool isHuman, rectangle *ball, int *humanScore, int *cpuScore)
 {
     /* Increment Score */
     int *playerScore;
@@ -63,10 +64,10 @@ void playerScores(bool isHuman, rectangle *ball, int *humanScore, int *cpuScore,
         playerScore = cpuScore;
 
     *playerScore = *playerScore + 1;
-    paused = true;
+    isGamePaused = true;
 
     /* If Winning Score, Show Winner and Reset */
-    if (*playerScore >= WINNING_SCORE)
+    if (*playerScore >= 10)
     {
         clearRegion(SCREEN_WIDTH / 2, MENU_TEXT_Y, SCREEN_WIDTH / 2 + 2, MENU_TEXT_Y + 30);
 
@@ -82,27 +83,27 @@ void playerScores(bool isHuman, rectangle *ball, int *humanScore, int *cpuScore,
     else
     {
         ball->velocityX *= -1;
-        *pauseLength = ROUND_PAUSE;
+        pauseLength = ROUND_PAUSE;
     }
 }
 
 /* Game Logic */
-void matchMode(rectangle *player, rectangle *cpuPlayer, rectangle *ball, int *playerScore, int *cpuScore, int *pauseLength, int *pauseCounter)
+void matchMode(rectangle *player, rectangle *cpuPlayer, rectangle *ball, int *playerScore, int *cpuScore, int *pauseCounter)
 {
     /* If players are rallying */
-    if (!paused)
+    if (!isGamePaused)
     {
         /* If ball has hit opponents wall, player scores */
         if (ball->x <= 3 && ball->velocityX < 0)
         {
             ball->x = player->x;
-            playerScores(false, ball, playerScore, cpuScore, pauseLength);
+            playerScores(false, ball, playerScore, cpuScore);
         }
 
         else if (ball->x >= SCREEN_WIDTH - ball->width - 3 && ball->velocityX > 0)
         {
             ball->x = cpuPlayer->x + PADDLE_WIDTH - BALL_SIZE;
-            playerScores(true, ball, playerScore, cpuScore, pauseLength);
+            playerScores(true, ball, playerScore, cpuScore);
         }
         /* If ball hits ceiling or floor, bounce off */
         if (ball->y <= 0 && ball->velocityY < 0)
@@ -162,7 +163,7 @@ void matchMode(rectangle *player, rectangle *cpuPlayer, rectangle *ball, int *pl
         }
 
         /* Update Positions */
-        if (!paused)
+        if (!isGamePaused)
         {
             ball->x += ball->velocityX;
             ball->y += ball->velocityY;
@@ -181,10 +182,10 @@ void matchMode(rectangle *player, rectangle *cpuPlayer, rectangle *ball, int *pl
             player->y = PLAYER_START_Y;
             cpuPlayer->y = PLAYER_START_Y;
         }
-        if (*pauseCounter > *pauseLength)
+        if (*pauseCounter > pauseLength)
         {
             *pauseCounter = 0;
-            paused = false;
+            isGamePaused = false;
         }
     }
 
@@ -195,8 +196,8 @@ void matchMode(rectangle *player, rectangle *cpuPlayer, rectangle *ball, int *pl
 
     drawCenterLine();
 
-    printHumanScore(score[*playerScore]);
-    printComputerScore(score[*cpuScore]);
+    printPlayerScore(score[*playerScore]);
+    printCpuScore(score[*cpuScore]);
 
     /* Draw Ball, Players at current positions */
     drawRectangle(ball, CLR_LIME);
@@ -246,30 +247,27 @@ int main(void)
     SetMode(MODE_3 | BG2_ON);
 
     /* Match Variables */
-    rectangle humanPlayer, computerPlayer, ball;
-    int humanScore, computerScore;
-    int pauseLength, pauseCounter;
+    int playerScore;
+    int cpuScore;
+    int pauseCounter;
 
-    humanPlayer.x = 1;
-    humanPlayer.y = PLAYER_START_Y;
-    humanPlayer.prevX = humanPlayer.x;
-    humanPlayer.prevY = humanPlayer.y;
-    humanPlayer.width = PADDLE_WIDTH;
-    humanPlayer.height = PADDLE_HEIGHT;
-    humanPlayer.velocityX = 0;
-    humanPlayer.velocityY = 0;
-    humanScore = 0;
+    rectangle player;
+    player.x = 1;
+    player.y = PLAYER_START_Y;
+    player.prevX = player.x;
+    player.prevY = player.y;
+    player.width = PADDLE_WIDTH;
+    player.height = PADDLE_HEIGHT;
 
-    computerPlayer.x = SCREEN_WIDTH - PADDLE_WIDTH - 1;
-    computerPlayer.y = PLAYER_START_Y;
-    computerPlayer.prevX = computerPlayer.x;
-    computerPlayer.prevY = computerPlayer.y;
-    computerPlayer.width = PADDLE_WIDTH;
-    computerPlayer.height = PADDLE_HEIGHT;
-    computerPlayer.velocityX = 0;
-    computerPlayer.velocityY = 0;
-    computerScore = 0;
+    rectangle cpuPlayer;
+    cpuPlayer.x = SCREEN_WIDTH - PADDLE_WIDTH - 1;
+    cpuPlayer.y = PLAYER_START_Y;
+    cpuPlayer.prevX = cpuPlayer.x;
+    cpuPlayer.prevY = cpuPlayer.y;
+    cpuPlayer.width = PADDLE_WIDTH;
+    cpuPlayer.height = PADDLE_HEIGHT;
 
+    rectangle ball;
     ball.x = BALL_START_X;
     ball.y = (SCREEN_HEIGHT / 2) - (BALL_SIZE / 2);
     ball.prevX = ball.x;
@@ -279,22 +277,13 @@ int main(void)
     ball.velocityX = 2;
     ball.velocityY = 2;
 
-    pauseLength = NEW_GAME_PAUSE;
-    pauseCounter = 0;
-
     /* Main Game Loop */
     while (1)
     {
         VBlankIntrWait();
         scanKeys();
 
-        matchMode(&humanPlayer,
-                  &computerPlayer,
-                  &ball,
-                  &humanScore,
-                  &computerScore,
-                  &pauseLength,
-                  &pauseCounter);
+        matchMode(&player, &cpuPlayer, &ball, &playerScore, &cpuScore, &pauseCounter);
 
         /* Reset after completed game */
     }
